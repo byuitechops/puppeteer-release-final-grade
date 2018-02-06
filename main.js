@@ -1,4 +1,4 @@
-/* eslint  */
+/* eslint */
 
 const puppeteer = require('puppeteer');
 const d2login = require('d2l-login');
@@ -18,12 +18,16 @@ const totalCheckboxes = '[name*=chkRelease]';
 const checkedCheckboxes = '[name*=chkRelease][checked=checked]';
 
 async function main() {
+    // get the cookies
     const cookies = await d2login.getCookies(subdomain);
+    // read in the file
     const courses = d3.csvParse(fs.readFileSync(inFile,'utf-8'));
+    // Open puppeteer
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: true, // breaks more if not headless
     });
     const page = await browser.newPage();
+    // inject the cookies
     await page.setCookie(...cookies.map(c => ({
         name: c.key,
         value: c.value,
@@ -33,6 +37,7 @@ async function main() {
     for(var i = 0; i < courses.length; i++){
         try{
             await page.goto(url(courses[i].id));
+            // lets see if we are actually doing anything
             courses[i].total = await count(page,totalCheckboxes);
             courses[i].before = await count(page,checkedCheckboxes);
             await releseGrades(page);
@@ -43,7 +48,6 @@ async function main() {
         }
         fs.writeFileSync(reportFile,d3.csvFormat(courses.slice(0,i+1)));
         console.log(Object.values(courses[i]).join(' |\t'));
-        
     }
     await browser.close();
 }
@@ -55,19 +59,24 @@ function count(page,sel) {
 }
 
 async function releseGrades(page) {
+    // Change view to 200 per page
     await Promise.all([
         page.waitForNavigation(),
         page.select(perPage,'200')
     ]);
+    // Click the drop down for release all
     await Promise.all([
         page.waitForSelector(releaseAll),
         page.click(dropdown)
     ]);
+    // Click on the release all
     await Promise.all([
         page.waitForSelector(confirm),
         page.click(releaseAll)
     ]);
+    // Wait for the 'are you sure?' dialog
     await page.waitFor(500);
+    // Click confirm
     await Promise.all([
         page.waitForNavigation(),
         page.click(confirm),
