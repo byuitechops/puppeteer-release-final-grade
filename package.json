@@ -1,0 +1,16 @@
+{
+  "name": "release-final-grades",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d2l-login": "git+https://github.com/benjameep/d2l-login.git",
+    "d3-dsv": "^1.0.8",
+    "puppeteer": "^1.0.0"
+  }
+}
